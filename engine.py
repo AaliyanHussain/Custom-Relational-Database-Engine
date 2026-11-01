@@ -15,13 +15,13 @@ class Table:
             expected_type = self.types.get(col)
             if not isinstance(val, expected_type):
                 raise TypeError(f"Type error in column '{col}': expected {expected_type.__name__}, got {type(val).__name__}")
-            row-dict[col] = val
+            row_dict[col] = val
 
-            if self.primary_key:
-                pk_val = row_dict[self.primary_key]
-                if pk_val in self._primary_key_values:
-                    raise ValueError(f"Constraint error: Primary key '{pk_val}' already exists in table '{self.name}'.")
-                self._primary_key_values.add(pk_val)
+        if self.primary_key:
+            pk_val = row_dict[self.primary_key]
+            if pk_val in self._primary_key_values:
+                raise ValueError(f"Constraint error: Primary key '{pk_val}' already exists in table '{self.name}'.")
+            self._primary_key_values.add(pk_val)
         self.rows.append(values)
         print(f"Inserted row into {self.name}: {values}")
 
@@ -36,39 +36,39 @@ class Table:
         col_index = self.columns.index(column_name)
         return [row for row in self.rows if row[col_index] == value]
 
-    class Database:
-        def __init__(self):
-            self.name = name
-            self.table = {}
+class Database:
+    def __init__(self, name):
+        self.name = name
+        self.tables = {}
 
-        def create_table(self, name, columns, types=None, primary_key=None):
-            table = Table(name, columns, types, primary_key)
-            self.tables[name] = table
-            return table
+    def create_table(self, name, columns, types=None, primary_key=None):
+        table = Table(name, columns, types, primary_key)
+        self.tables[name] = table
+        return table
 
-        def get_table(self, name):
-            if name not in self.tables:
-                raise KeyError(f"Tanle '{name}' does not exist in database '{self.name}'.")
-            return self.tables[name]
+    def get_table(self, name):
+        if name not in self.tables:
+            raise KeyError(f"Table '{name}' does not exist in database '{self.name}'.")
+        return self.tables[name]
 
-        def inner_join(self, table1_name, table2_name, on_col1, on_col2):
-            t1 = self.get_table(table1_name)
-            t2 = self.get_table(table2_name)
+    def inner_join(self, table1_name, table2_name, on_col1, on_col2):
+        t1 = self.get_table(table1_name)
+        t2 = self.get_table(table2_name)
 
-            if on_col1 not in t1.columns or on_col2 not in t2.columns:
-                raise ValueError("Join columns do not match table schemas.")
+        if on_col1 not in t1.columns or on_col2 not in t2.columns:
+             raise ValueError("Join columns do not match table schemas.")
 
-            idx1 = t1.columns.index(on_col1)
-            idx2 = t2.columns.index(on_col2)
+        idx1 = t1.columns.index(on_col1)
+        idx2 = t2.columns.index(on_col2)
 
-            joined_results = []
-            combined_columns = t1.columns + [c for c in t2.columns if c != on_col2]
+        joined_results = []
+        combined_columns = t1.columns + [c for c in t2.columns if c != on_col2]
 
-            for r1 in t1.rows:
-                for r2 in t2.rows:
-                    if r1[idx1] == r2[idx2]:
-                        # Merge rows, excluding the join column from the second table
-                        merged_row = r1 + [val for i, val in enumerate(r2) if i != idx2]
-                        joined_results.append(merged_row)
+        for r1 in t1.rows:
+            for r2 in t2.rows:
+                if r1[idx1] == r2[idx2]:
+    # Merge rows, excluding the join column from the second table
+                    merged_row = r1 + [val for i, val in enumerate(r2) if i != idx2]
+                    joined_results.append(merged_row)
 
-            return combined_columns, joined_results            
+        return combined_columns, joined_results            

@@ -6,17 +6,16 @@ db = Database("school_db")
 users = db.create_table(
     "users",
     ["id", "name", "age"],
-    types={"id": int, "name": str, "age": int}
-    primary_key="id"and
+    types={"id": int, "name": str, "age": int},
+    primary_key="id"
 )    
 
 orders = db.create_table(
     "orders",
-    ["order_id", "user_id", "item"]
+    ["order_id", "user_id", "item"],
     types={"order_id": int, "user_id": int, "item": str},
     primary_key="order_id"
 )
-
 # 3. Insert Rows
 users.insert([1, "Aaliyan", 17])
 users.insert([2, "Rehan", 15])
@@ -32,7 +31,7 @@ seventeen_years_old = users.select("age", 17)
 print(seventeen_years_old)
 
 # 5. Test Relational Join
-print("n\--- INNER JOIN RESULTS (Users + Orders) ---")
+print("\n--- INNER JOIN RESULTS (Users + Orders) ---")
 columns, rows = db.inner_join("users", "orders", "id", "user_id")
 print(columns)
 for row in rows:
