@@ -36,6 +36,35 @@ class Table:
         col_index = self.columns.index(column_name)
         return [row for row in self.rows if row[col_index] == value]
 
+    def select_where(self, column_name, operator, value):
+        if column_name not in self.columns:
+            raise ValueError(f"Column '{column_name}' does not exist in table '{self.name}'.")
+
+        col_index = self.columns.index(column_name)
+        matched_rows = []
+
+        for row in self.rows:
+            cell_value = row[col_index]
+            match = False
+
+            if operator == "==":
+                match = (cell_value == value)
+            elif operator == "!=":
+                match = (cell_value != value)
+            elif operator == ">":
+                match = (cell_value > value)
+            elif operator == "<":
+                match = (cell_value < value)
+            elif operator == ">=":
+                match = (cell_value >= value)
+            elif operator == "<=":
+                match = (cell_value <= value)
+            else:
+                raise ValueError(f"Unsupported operator '{operator}'. Supported operators are: '==', '!=', '<', '<=', '>', '>='.")
+            if match:
+                matched_rows.append(row)
+        return matched_rows     
+
 class Database:
     def __init__(self, name):
         self.name = name

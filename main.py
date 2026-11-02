@@ -36,3 +36,8 @@ columns, rows = db.inner_join("users", "orders", "id", "user_id")
 print(columns)
 for row in rows:
     print(row)
+
+ # Test Advance Filtering with Operators   
+print("\n--- ADVANCED FILTER RESULTS (Age >= 17) ---")
+older_users = users.select_where("age", ">=", 17)
+print(older_users)
