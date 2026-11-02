@@ -63,7 +63,49 @@ class Table:
                 raise ValueError(f"Unsupported operator '{operator}'. Supported operators are: '==', '!=', '<', '<=', '>', '>='.")
             if match:
                 matched_rows.append(row)
-        return matched_rows     
+        return matched_rows  
+
+    def update(self, primary_key_val, column_name, new_value):
+        if not self.primary_key:
+            raise ValueError(f"Table '{self.name}' has no primary key defined.")
+        if column_name not in self.columns:
+            raise ValueError(f"Column '{column_name}' dies not exist in table '{self.name}'.")
+        expected_type = self.types.get(column_name)
+        if expected_type and not isinstance(new_value, expected_type):
+            raise TypeError(f"Type error in column '{column_name}': expected {expected_type.__name__}, got {type(new_value).__name__}")
+
+        pk_index = self.columns.index(self.primary_key)
+        col_index = self.columns.index(column_name)
+
+        updated = False
+        for row in self.rows:
+            if row[pk_index] == primary_key_val:
+                row[col_index] = new_value
+                updated = True
+                break
+
+        if not updated:
+            raise KeyError(f"Row with primary key '{primary_key_val}' not found in table '{self.name}'.")
+        print(f"Updated table '{self.name}': Primary Key {primary_key_val} -> set {column_name} = {new_value}")
+
+        def delete(self, primary_key_val):
+            if not self.primary_key:
+                raise ValueError(f"Table '{self.name}' has no primary key defined.")
+
+            pk_index = self.columns.index(self.primary_key)
+            row_to_delete = None
+
+            for row in self.rows:
+                if row[pk_index] == primary_key_val:
+                    row_to_delete = row
+                    break
+
+            if row_to_delete is None:
+                raise KeyError(f"Row with primary key '{primary_key_val}' not found in table '{self.name}'.")
+
+            self.rows.remove(row_to_delete) 
+            self._primary_key_values.remove(primary_key_val)
+            print(f"Deleted row with primary key '{primary_key_val}' from table '{self.name}'.")
 
 class Database:
     def __init__(self, name):

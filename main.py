@@ -41,3 +41,11 @@ for row in rows:
 print("\n--- ADVANCED FILTER RESULTS (Age >= 17) ---")
 older_users = users.select_where("age", ">=", 17)
 print(older_users)
+
+# Test Update and Delete
+print("\n--- Test Update and Delete ---")
+users.update(2, "age", 16)
+print("After update (ID 2):", users.select("id", 2))
+
+users.delete(3)
+print("Remaining users after deletion:", users.rows)
