@@ -159,7 +159,7 @@ class Database:
                 "types": seralized_types,
                 "primary_key": table.primary_key,
                 "rows": table.rows,
-                "primary_key_values": list(table.primary_key_values)
+                "primary_key_values": list(table._primary_key_values)
             }
 
         with open(filename, "w") as f:
@@ -186,7 +186,7 @@ class Database:
                 primary_key=t_data["primary_key"]
             )
             table.rows = t_data["rows"]
-            table.primary_key_values = set(t_data["primary_key_values"])
+            table._primary_key_values = set(t_data["primary_key_values"])
 
             self.tables[table_name] = table
         print(f"Database successfully loaded from '{filename}'.")    
