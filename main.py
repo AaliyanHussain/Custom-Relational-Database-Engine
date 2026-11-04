@@ -49,3 +49,13 @@ print("After update (ID 2):", users.select("id", 2))
 
 users.delete(3)
 print("Remaining users after deletion:", users.rows)
+
+#Save database to diisk
+db.save_to_disk("school.json")
+
+# Test loadiing into a new database instance
+new_db = Database("school_db")
+new_db.load_from_disk("school.json")
+
+print("\n--- Verifying Loaded Data ---")
+print("Loaded users table rows:", new_db.get_table("users").rows)

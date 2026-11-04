@@ -1,3 +1,6 @@
+import json
+import os
+
 class Table:
     def __init__(self, name, columns, types=None, primary_key=None):
         self.name = name
@@ -88,24 +91,24 @@ class Table:
             raise KeyError(f"Row with primary key '{primary_key_val}' not found in table '{self.name}'.")
         print(f"Updated table '{self.name}': Primary Key {primary_key_val} -> set {column_name} = {new_value}")
 
-        def delete(self, primary_key_val):
-            if not self.primary_key:
-                raise ValueError(f"Table '{self.name}' has no primary key defined.")
+    def delete(self, primary_key_val):
+        if not self.primary_key:
+            raise ValueError(f"Table '{self.name}' has no primary key defined.")
 
-            pk_index = self.columns.index(self.primary_key)
-            row_to_delete = None
+        pk_index = self.columns.index(self.primary_key)
+        row_to_delete = None
 
-            for row in self.rows:
-                if row[pk_index] == primary_key_val:
-                    row_to_delete = row
-                    break
+        for row in self.rows:
+            if row[pk_index] == primary_key_val:
+                row_to_delete = row
+                break
 
-            if row_to_delete is None:
-                raise KeyError(f"Row with primary key '{primary_key_val}' not found in table '{self.name}'.")
+        if row_to_delete is None:
+            raise KeyError(f"Row with primary key '{primary_key_val}' not found in table '{self.name}'.")
 
-            self.rows.remove(row_to_delete) 
-            self._primary_key_values.remove(primary_key_val)
-            print(f"Deleted row with primary key '{primary_key_val}' from table '{self.name}'.")
+        self.rows.remove(row_to_delete) 
+        self._primary_key_values.remove(primary_key_val)
+        print(f"Deleted row with primary key '{primary_key_val}' from table '{self.name}'.")
 
 class Database:
     def __init__(self, name):
@@ -142,4 +145,49 @@ class Database:
                     merged_row = r1 + [val for i, val in enumerate(r2) if i != idx2]
                     joined_results.append(merged_row)
 
-        return combined_columns, joined_results            
+        return combined_columns, joined_results      
+
+    def save_to_disk(self, filename="database.json"):
+        data = {}
+        for table_name, table in self.tables.items(): 
+        #convert type of objects to their string name
+            seralized_types = {col: t.__name__ for col, t in table.types.items()}
+
+            data[table_name] = {
+                "name": table.name,
+                "columns": table.columns,
+                "types": seralized_types,
+                "primary_key": table.primary_key,
+                "rows": table.rows,
+                "primary_key_values": list(table.primary_key_values)
+            }
+
+        with open(filename, "w") as f:
+            json.dump(data, f, indent=4)
+        print(f"Database successfully saved to '{filename}'.")   
+
+    def load_from_disk(self, filename="database.json"):
+        if not os.path.exists(filename):
+            raise FileNotFoundError(f"File '{filename}'.")
+
+        type_map = {"int": int, "str": str, "float": float, "bool": bool}
+        with open(filename, "r") as f:
+            data = json.load(f)
+
+        self.tables = {}
+        for table_name, t_data in data.items():
+            #Converts string names back to actual type objects
+            deserialized_types = {col: type_map[t_name] for col, t_name in t_data["types"].items()}
+
+            table = Table(
+                name=t_data["name"],
+                columns=t_data["columns"],
+                types=deserialized_types,
+                primary_key=t_data["primary_key"]
+            )
+            table.rows = t_data["rows"]
+            table.primary_key_values = set(t_data["primary_key_values"])
+
+            self.tables[table_name] = table
+        print(f"Database successfully loaded from '{filename}'.")    
+        
