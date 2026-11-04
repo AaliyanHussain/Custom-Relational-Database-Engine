@@ -38,6 +38,7 @@ py main.py
 
 ## Project Files
 
+```text
 ├── engine.py       # Core database logic, table rules, and JSON file saving
 ├── main.py         # Terminal interface, user menus, and error handling
 ├── .gitignore      # Ignores runtime database files (like school.json)
